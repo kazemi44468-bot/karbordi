@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -21,18 +21,28 @@ jobs:
       - name: Install packager
         run: python -m pip install --upgrade pip pyinstaller
       - name: Build standalone Windows application
-        run: pyinstaller --noconfirm --clean --onefile --windowed --name Karbordi --collect-all tkinter desktop_app.py
+        run: pyinstaller --noconfirm --clean --onefile --windowed --name Karbordi desktop_app.py
       - name: Prepare download package
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path package | Out-Null
           Copy-Item dist/Karbordi.exe package/
-          Copy-Item README.md package/
+          Set-Content -Path package/شروع-کار.txt -Value "فایل Karbordi.exe را در یک پوشه دلخواه قرار دهید و دوبار کلیک کنید. برای انتقال، رایانه و گوشی باید به یک Wi-Fi وصل باشند. پوشه‌های KarbordiFiles کنار فایل اجرایی ساخته می‌شوند." -Encoding utf8
           Compress-Archive -Path package/* -DestinationPath Karbordi-Windows.zip -Force
-      - name: Upload Windows app
+      - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
           name: Karbordi-Windows
           path: Karbordi-Windows.zip
           if-no-files-found: error
           retention-days: 30
+      - name: Publish downloadable release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: desktop-latest
+          name: کاربُردی برای Windows 11
+          body: "نسخه دسکتاپ کاربُردی. فایل ZIP را استخراج و Karbordi.exe را اجرا کنید."
+          prerelease: true
+          make_latest: false
+          files: Karbordi-Windows.zip
+          fail_on_unmatched_files: true
