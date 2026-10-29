@@ -1,0 +1,4 @@
+# Transferred files are local data and should not be committed
+KarbordiFiles/
+__pycache__/
+*.py[cod]
