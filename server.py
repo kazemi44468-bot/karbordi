@@ -9,11 +9,12 @@ import secrets
 import socket
 import threading
 import urllib.parse
+import sys
 from http.cookies import SimpleCookie
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-APP_DIR = Path(__file__).resolve().parent
+APP_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
 DATA_DIR = APP_DIR / "KarbordiFiles"
 SHARED_DIR = DATA_DIR / "Shared"
 RECEIVED_DIR = DATA_DIR / "Received"
