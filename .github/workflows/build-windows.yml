@@ -1,0 +1,38 @@
+name: Build Windows app
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install packager
+        run: python -m pip install --upgrade pip pyinstaller
+      - name: Build standalone Windows application
+        run: pyinstaller --noconfirm --clean --onefile --windowed --name Karbordi --collect-all tkinter desktop_app.py
+      - name: Prepare download package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path package | Out-Null
+          Copy-Item dist/Karbordi.exe package/
+          Copy-Item README.md package/
+          Compress-Archive -Path package/* -DestinationPath Karbordi-Windows.zip -Force
+      - name: Upload Windows app
+        uses: actions/upload-artifact@v4
+        with:
+          name: Karbordi-Windows
+          path: Karbordi-Windows.zip
+          if-no-files-found: error
+          retention-days: 30
